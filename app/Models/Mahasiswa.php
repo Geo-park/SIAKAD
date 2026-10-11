@@ -45,6 +45,11 @@ class Mahasiswa extends Model
         return $this->hasMany(Nilai::class);
     }
 
+    public function bills()
+    {
+        return $this->hasMany(Bill::class);
+    }
+
     public function isActive(): bool
     {
         return $this->status === 'aktif';

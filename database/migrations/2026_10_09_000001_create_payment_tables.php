@@ -27,12 +27,16 @@ return new class extends Migration
         if (!Schema::hasTable('bills')) {
             Schema::create('bills', function (Blueprint $table) {
                 $table->id();
+                $table->string('invoice_number', 64)->nullable()->unique();
+                $table->string('va_number', 32)->nullable()->index();
                 $table->foreignId('payment_period_id')->constrained('payment_periods')->onDelete('cascade');
                 $table->foreignId('mahasiswa_id')->constrained('mahasiswa')->onDelete('cascade');
                 $table->decimal('amount', 15, 2);
-                $table->string('status')->default('unpaid'); // unpaid, partial, paid
+                $table->string('status')->default('unpaid'); // unpaid, paid
                 $table->date('due_date')->nullable();
+                $table->string('description', 255)->nullable();
                 $table->timestamps();
+                $table->unique(['payment_period_id', 'mahasiswa_id'], 'bill_period_mahasiswa_unique');
             });
         }
 
@@ -44,7 +48,12 @@ return new class extends Migration
                 $table->decimal('amount_paid', 15, 2);
                 $table->dateTime('payment_date');
                 $table->string('payment_method')->nullable();
-                $table->string('reference_number')->nullable();
+                $table->string('reference_number', 128)->unique();
+                $table->string('idempotency_key', 128)->nullable()->unique();
+                $table->string('security_hash', 128)->nullable();
+                $table->string('status', 32)->default('success');
+                $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+                $table->text('notes')->nullable();
                 $table->timestamps();
             });
         }
